@@ -1,5 +1,5 @@
 {
-  "name": "editorjs-font-family",
+  "name": "editorjs-font-size",
   "version": "0.0.1",
   "description": "This is a font size plugin created for editorjs",
   "main": "dist/cjs/index.js",
@@ -24,7 +24,7 @@
     "plugin"
   ],
   "author": "jaisriramr",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",

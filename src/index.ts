@@ -1,135 +1,72 @@
+// CustomFontFamilyInlineTool.ts
+import "./styles.css";
 import { API, InlineTool } from "@editorjs/editorjs";
-/**
- * Custom font family inline tool
- */
-export default class FontFamily implements InlineTool {
-  /**
-   * Css class of custom font family inline tool
-   */
-  public static readonly CSS_CLASS = "FontFamily";
 
-  /**
-   * Api  of custom font family inline tool
-   */
-  public readonly api: API;
+export class CustomFontSizeInlineTool implements InlineTool {
+  public static readonly CSS_CLASS = "editorjs-font-size"; // CSS class to be applied to the inline element
 
-  public state: boolean;
+  public readonly api?: API;
 
-  /**
-   * Font family of custom font family inline tool
-   */
-  private font_Family: any = "";
+  private font_size: any = "";
 
-  /**
-   * Creates an instance of custom font family inline tool.
-   * @param { api, state }
-   */
-  constructor({ api, state }: { api: API; state: false }) {
+  constructor({ api }: { api?: API }) {
     this.api = api;
-
-    this.state = state;
   }
 
-  /**
-   * Gets whether is inline
-   */
   public static get isInline() {
-    return true;
+    return true; // This tool is an inline tool
   }
 
-  /**
-   * Gets title
-   */
   public static get title() {
-    return "Font Family";
+    return "Font Size"; // Displayed in the toolbox
   }
 
-  /**
-   * Surrounds custom font family inline tool
-   * @param range
-   * @returns surround
-   */
-  surround(): void {
-    if (this.font_Family.length == 0) {
+  surround(range: Range): void {
+    if (this.font_size.length == 0) {
       return;
     }
 
-    document.execCommand("fontName", false, this.font_Family);
+    const font = document.createElement("font");
+    font.style.fontSize = this.font_size + "px";
+    font.style.lineHeight = "auto";
+    font.classList.add("ce-font-size");
+    font.appendChild(range.extractContents());
+    range.insertNode(font);
   }
 
-  /**
-   * Renders custom font family inline tool
-   * @returns render
-   */
   public render(): HTMLElement {
-    const fontFamily = [
-      "Arial",
-      "Lato",
-      "Helvatica",
-      "Roboto",
-      "Poppins",
-      "Times New Roman",
-      "Merriweather",
-      "Montserrat",
-      "Playfair Display",
-      "Raleway",
-      "Rubik",
+    const fontSizes = [
+      8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72, 96,
     ];
+    // const fontFamily = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     const container = document.createElement("div");
-    // container.classList.add("editorjs-dropdown");
-    container.style.position = "relative";
-    container.style.display = "flex";
+    container.classList.add("editorjs-dropdown");
     const btn = document.createElement("button");
-    // btn.classList.add("editorjs-dropdown-btn");
-    btn.style.backgroundColor = "transparent";
-    btn.style.color = "inherit";
-    btn.style.fontSize = "inherit";
-    btn.style.cursor = "pointer";
-    btn.style.border = "none";
-    // btn.classList.add("tools-truncate");
-    btn.style.width = "100px";
-    btn.style.whiteSpace = "nowrap";
-    btn.style.overflow = "hidden";
-    btn.style.textOverflow = "ellipsis";
+    btn.classList.add("tools-truncate");
+    btn.classList.add("editorjs-dropdown-btn");
+    btn.classList.add("tools-size-truncate");
     const dropdownContent = document.createElement("div");
-    dropdownContent.style.top = "36px";
-    dropdownContent.style.minHeight = "100px";
-    dropdownContent.style.padding = "10px";
-    dropdownContent.style.width = "max-content";
-    dropdownContent.style.height = "fit-content";
-    dropdownContent.style.display = "none";
-    dropdownContent.style.position = "absolute";
-    dropdownContent.style.bottom = "0";
-    dropdownContent.style.backgroundColor = "#ffffff";
-    dropdownContent.style.boxShadow = "0px 4px 4px 0px rgba(0, 0, 0, 0.15)";
-    dropdownContent.style.borderRadius = "8px";
+    dropdownContent.classList.add("editorjs-dropdown-content");
 
-    // dropdownContent.classList.add("editorjs-dropdown-content");
-
-    fontFamily.map((family: any) => {
-      const FontFamily = document.createElement("p");
-      // FontFamily.classList.add("editorjs-fontfamily-p");
-      FontFamily.style.margin = "0";
-      FontFamily.style.padding = "6px 12px";
-      FontFamily.style.cursor = "pointer";
-
-      FontFamily.innerText = family;
-      FontFamily.style.fontFamily = family;
-      FontFamily.onclick = (e: any) => {
-        this.font_Family = e.target.innerText;
-        btn.innerText = this.font_Family;
-        dropdownContent.style.display = "none";
+    fontSizes.map((size: any) => {
+      const para = document.createElement("p");
+      para.classList.add("editorjs-fontfamily-p");
+      para.innerText = size;
+      para.onclick = (e: any) => {
+        this.font_size = e.target.innerText;
+        btn.innerText = this.font_size;
+        dropdownContent.classList.remove("editorjs-dropdown-content-active");
       };
-      dropdownContent.appendChild(FontFamily);
+      dropdownContent.appendChild(para);
     });
 
     container.appendChild(btn);
     container.appendChild(dropdownContent);
-    btn.innerHTML = "Font family";
-    btn.onclick = () => {
-      dropdownContent.style.display = "block";
-    };
+    btn.innerHTML = "11";
+    btn.onclick = () =>
+      dropdownContent.classList.toggle("editorjs-dropdown-content-active");
+
     return container;
   }
 
@@ -146,27 +83,20 @@ export default class FontFamily implements InlineTool {
         "data-user": true,
       },
       mark: {
-        id: true,
         class: true,
+        id: true,
       },
       font: {
-        face: true,
-        color: true,
-        style: true,
         class: true,
+        color: true,
+        face: true,
         size: true,
+        style: true,
       },
     };
   }
 
-  /**
-   * Checks state
-   * @param selection
-   * @returns true if state
-   */
   checkState(): boolean {
-    const mark = this.api.selection.findParentTag("mark");
-
-    return (this.state = !!mark);
+    return true;
   }
 }
